@@ -26,7 +26,7 @@ cursor:pointer;
 font-size:24px;
 }
 
-.dropdown{
+the.dropdown{
 display:none;
 position:absolute;
 right:10px;
@@ -36,12 +36,11 @@ border:1px solid #ccc;
 border-radius:5px;
 }
 
-.dropdown button{
+the.dropdown button{
 display:block;
 width:120px;
 padding:10px;
-border:none;
-background:white;
+border:none;ackground:white;
 cursor:pointer;
 }
 
@@ -77,8 +76,7 @@ border-radius:5px;
 .delete-btn{
 position:absolute;
 top:5px;
-right:5px;
-background:red;
+right:5px;ackground:red;
 color:white;
 border:none;
 cursor:pointer;
@@ -131,7 +129,7 @@ border-radius:5px;
 
 <h3>Upload Food</h3>
 
-<<input type="file" id="imageInput">
+<input type="file" id="imageInput">
 <br><br>
 
 <button onclick="uploadImage()">Upload Image</button>
@@ -197,14 +195,16 @@ map:map
 }
 
 
+let uploadedImage = "";
+
 function uploadImage(){
 
-let file=document.getElementById("imageInput").files[0];
+let file = document.getElementById("imageInput").files[0];
 
-let formData=new FormData();
+let formData = new FormData();
 
-formData.append("file",file);
-formData.append("upload_preset","food_upload");
+formData.append("file", file);
+formData.append("upload_preset", "food_explorer");
 
 fetch("https://api.cloudinary.com/v1_1/dzlwlp2fx/image/upload",{
 method:"POST",
@@ -213,7 +213,9 @@ body:formData
 .then(res=>res.json())
 .then(data=>{
 
-addPost(data.secure_url);
+uploadedImage = data.secure_url;
+
+alert("Image uploaded! Now press POST");
 
 });
 
@@ -243,36 +245,10 @@ card.appendChild(del);
 feed.appendChild(card);
 
 }
-let uploadedImage = "";
-
-function uploadImage(){
-
-let file = document.getElementById("imageInput").files[0];
-
-let formData = new FormData();
-
-formData.append("file", file);
-formData.append("upload_preset", "food_explorer");
-
-fetch("https://api.cloudinary.com/v1_1/dzlwlp2fx/image/upload",{
-method:"POST",
-body:formData
-})
-.then(res=>res.json())
-.then(data=>{
-
-uploadedImage = data.secure_url;
-
-alert("Image uploaded! Now press POST");
-
-});
-
-}
 
 function postImage(){
 
-if(uploadedImage==""){
-alert("Upload image first");
+if(uploadedImage==""){alert("Upload image first");
 return;
 }
 
@@ -281,6 +257,7 @@ addPost(uploadedImage);
 uploadedImage="";
 
 }
+
 </script>
 
 
