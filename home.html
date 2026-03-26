@@ -252,7 +252,7 @@ let file = document.getElementById("imageInput").files[0];
 let formData = new FormData();
 
 formData.append("file", file);
-formData.append("upload_preset", "UPLOAD_PRESET");
+formData.append("upload_preset", "food_explorer");
 
 fetch("https://api.cloudinary.com/v1_1/dzlwlp2fx/image/upload",{
 method:"POST",
