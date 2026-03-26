@@ -131,10 +131,14 @@ border-radius:5px;
 
 <h3>Upload Food</h3>
 
-<input type="file" id="imageInput">
+<<input type="file" id="imageInput">
 <br><br>
 
-<button onclick="uploadImage()">Upload</button>
+<button onclick="uploadImage()">Upload Image</button>
+
+<button onclick="postImage()" style="margin-left:10px;background:#4CAF50;color:white;border:none;padding:8px;border-radius:5px;">
+Post
+</button>
 
 <div id="map"></div>
 
@@ -239,7 +243,44 @@ card.appendChild(del);
 feed.appendChild(card);
 
 }
+let uploadedImage = "";
 
+function uploadImage(){
+
+let file = document.getElementById("imageInput").files[0];
+
+let formData = new FormData();
+
+formData.append("file", file);
+formData.append("upload_preset", "UPLOAD_PRESET");
+
+fetch("https://api.cloudinary.com/v1_1/YOUR_CLOUD_NAME/image/upload",{
+method:"POST",
+body:formData
+})
+.then(res=>res.json())
+.then(data=>{
+
+uploadedImage = data.secure_url;
+
+alert("Image uploaded! Now press POST");
+
+});
+
+}
+
+function postImage(){
+
+if(uploadedImage==""){
+alert("Upload image first");
+return;
+}
+
+addPost(uploadedImage);
+
+uploadedImage="";
+
+}
 </script>
 
 
