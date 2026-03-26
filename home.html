@@ -100,7 +100,7 @@ margin-top:30px;
 </head>
 
 <body>
-
+<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAwNCJX2U1Q_4tqA_ip2FJYUYI5Kyesmls&callback=initMap" async defer></script>
 <!-- 3 dot menu -->
 <div class="menu-container">
 
@@ -253,7 +253,7 @@ alert("Post uploaded");
 loadPosts();
 
 };
-
+<div id="map" style="height:300px;width:100%;border-radius:10px;"></div>
 
 /* Load Posts */
 
@@ -355,6 +355,30 @@ function toggleMenu(){
 const menu=document.getElementById("menu");
 
 menu.style.display = menu.style.display==="block" ? "none" : "block";
+
+}
+  let map;
+let marker;
+
+function initMap() {
+
+  map = new google.maps.Map(document.getElementById("map"), {
+    center: { lat: 20.5937, lng: 78.9629 }, // India center
+    zoom: 5
+  });
+
+  map.addListener("click", function(event) {
+
+    if(marker){
+      marker.setMap(null);
+    }
+
+    marker = new google.maps.Marker({
+      position: event.latLng,
+      map: map
+    });
+
+  });
 
 }
 
