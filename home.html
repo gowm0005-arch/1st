@@ -248,23 +248,22 @@
 
         /* load posts */
 
-        async function loadPosts() {
+        async function loadPosts(){
 
-            const querySnapshot = await getDocs(collection(db, "posts"));
+const querySnapshot = await getDocs(collection(db,"posts"));
 
-            let html = "";
+let html="";
 
-            querySnapshot.forEach((docSnap) => {
+querySnapshot.forEach((docSnap)=>{
 
-                const data = docSnap.data();
+const data = docSnap.data();
 
-                html += `
-
+html += `
 <div class="post-box">
 
 <h3>${data.food}</h3>
 
-<img src="${data.image}">
+<img src="${data.image}" width="300">
 
 <p>${data.review}</p>
 
@@ -272,15 +271,19 @@
 ❤️ ${data.likes || 0}
 </button>
 
-</div>
+<button onclick="deletePost('${docSnap.id}')"
+style="background:red;margin-left:10px;">
+Delete
+</button>
 
+</div>
 `;
 
-            });
+});
 
-            document.getElementById("feed").innerHTML = html;
+document.getElementById("feed").innerHTML = html;
 
-        }
+}
 
         /* like post */
 
