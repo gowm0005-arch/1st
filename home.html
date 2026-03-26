@@ -300,6 +300,17 @@ document.getElementById("feed").innerHTML = html;
             loadPosts();
 
         };
+        window.deletePost = async function(id){
+
+if(confirm("Delete this post?")){
+
+await deleteDoc(doc(db,"posts",id));
+
+loadPosts();
+
+}
+
+}
 
         /* logout */
 
