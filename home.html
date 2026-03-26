@@ -4,17 +4,43 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="styles.css">
-    <title>Document</title>
+    <title>Food Explorer</title>
 </head>
 <body>
-    <div class="dropdown">
-        <button class="dropbtn">Dropdown</button>
-        <div class="dropdown-content">
-            <a href="#">Link 1</a>
-            <a href="#">Link 2</a>
-            <a href="#">Link 3</a>
+    <header>
+        <h1>Food Explorer</h1>
+        <div class="dropdown">
+            <button class="dropbtn">Menu</button>
+            <div class="dropdown-content">
+                <a href="#">Home</a>
+                <a href="#">About</a>
+                <a href="#">Contact</a>
+            </div>
         </div>
-    </div>
+    </header>
+    <main>
+        <div class="upload-box">
+            <input type="file" id="imageUpload" accept="image/*">
+            <button onclick="uploadImage()">Upload Image</button>
+        </div>
+        <div class="feed-grid">
+            <!-- Posts will be dynamically added here -->
+        </div>
+    </main>
     <script src="script.js"></script>
+    <script>
+        function uploadImage() {
+            // Logic to upload the image
+        }
+        function postImage(image) {
+            // Logic to post the image
+        }
+        function addPost(postContent) {
+            // Logic to add a new post
+        }
+        function initMap() {
+            // Initialize the map
+        }
+    </script>
 </body>
 </html>
