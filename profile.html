@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+    <title>My Profile</title>
+
+    <style>
+        body {
+            font-family: Arial;
+            background: #f4f4f4;
+            margin: 0;
+            text-align: center;
+        }
+
+        .header {
+            background: #ff5722;
+            color: white;
+            padding: 20px;
+        }
+
+        .profile-box {
+            background: white;
+            width: 350px;
+            margin: 20px auto;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .profile-img {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        .post {
+            background: white;
+            width: 350px;
+            margin: 20px auto;
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .post img {
+            width: 100%;
+            border-radius: 10px;
+        }
+
+        button {
+            padding: 8px 15px;
+            border: none;
+            background: #ff5722;
+            color: white;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        input {
+            padding: 6px;
+            width: 80%;
+        }
+    </style>
+
+</head>
+
+<body>
+
+    <div class="header">
+        <h2>My Profile</h2>
+    </div>
+
+    <div class="profile-box">
+
+        <img id="profilePic" class="profile-img" src="https://via.placeholder.com/120">
+
+        <h3 id="userEmail"></h3>
+
+        <input id="nameInput" placeholder="Enter your name">
+
+        <br>
+
+        <button onclick="saveProfile()">Save Profile</button>
+
+        <p>Total Posts: <span id="postCount">0</span></p>
+
+        <button onclick="goHome()">Home</button>
+
+    </div>
+
+    <div id="myPosts"></div>
+
+    <script src="https://upload-widget.cloudinary.com/global/all.js"></script>
+
+    <script type="module">
+
+        import { initializeApp }
+            from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+
+        import {
+            getFirestore,
+            collection,
+            getDocs,
+            doc,
+            setDoc
+        }
+            from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+        import {
+            getAuth,
+            onAuthStateChanged
+        }
+            from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+        const firebaseConfig = {
+
+            apiKey: "AIzaSyAqMWOE_uR6AUX9u-g9QybNPeLE8B361aM",
+            authDomain: "food-explorer-fc408.firebaseapp.com",
+            projectId: "food-explorer-fc408",
+            storageBucket: "food-explorer-fc408.appspot.com",
+            messagingSenderId: "247217642461",
+            appId: "1:247217642461:web:000b3cd0d31c8...",
+            measurementId: "G-Q6ZBFHQHBW"
+
+        };
+
+        const app = initializeApp(firebaseConfig);
+
+        const db = getFirestore(app);
+
+        const auth = getAuth(app);
+
+        let profileImage = "";
+
+
+        /* Cloudinary profile upload */
+
+        const widget = cloudinary.createUploadWidget({
+
+            cloudName: "dzlwlp2fx",
+            uploadPreset: "food_upload"
+
+        },
+
+            (error, result) => {
+
+                if (!error && result && result.event === "success") {
+
+                    profileImage = result.info.secure_url;
+
+                    document.getElementById("profilePic").src = profileImage;
+
+                }
+
+            });
+
+        document.getElementById("profilePic").onclick = function () {
+
+            widget.open();
+
+        };
+
+
+        /* Auth check */
+
+        onAuthStateChanged(auth, async (user) => {
+
+            if (user) {
+
+                document.getElementById("userEmail").innerText =
+                    user.email;
+
+                loadMyPosts(user.email);
+
+            }
+
+        });
+
+
+        /* Save profile */
+
+        window.saveProfile = async function () {
+
+            const user = auth.currentUser;
+
+            const name = document.getElementById("nameInput").value;
+
+            await setDoc(doc(db, "users", user.uid), {
+
+                email: user.email,
+                name: name,
+                photo: profileImage
+
+            });
+
+            alert("Profile saved");
+
+        };
+
+
+        /* Load posts */
+
+        async function loadMyPosts(email) {
+
+            const querySnapshot = await getDocs(collection(db, "posts"));
+
+            let html = "";
+            let count = 0;
+
+            querySnapshot.forEach((docSnap) => {
+
+                const data = docSnap.data();
+
+                if (data.user === email) {
+
+                    count++;
+
+                    html += `
+
+<div class="post">
+
+<h3>${data.food}</h3>
+
+<img src="${data.image}">
+
+<p>${data.review}</p>
+
+<p style="color:gray">${data.time}</p>
+
+</div>
+
+`;
+
+                }
+
+            });
+
+            document.getElementById("myPosts").innerHTML = html;
+
+            document.getElementById("postCount").innerText = count;
+
+        }
+
+
+        /* Home */
+
+        window.goHome = function () {
+
+            window.location.href = "home.html";
+
+        }
+
+    </script>
+
+</body>
+
+</html>
