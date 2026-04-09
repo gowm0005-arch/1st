@@ -9,8 +9,8 @@
         body {
             font-family: Arial;
             background: #f4f4f4;
-            margin: 0;
             text-align: center;
+            margin: 0;
         }
 
         .header {
@@ -22,7 +22,7 @@
         .profile-box {
             background: white;
             width: 350px;
-            margin: 20px auto;
+            margin: 30px auto;
             padding: 20px;
             border-radius: 10px;
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
@@ -33,35 +33,24 @@
             height: 120px;
             border-radius: 50%;
             object-fit: cover;
+            cursor: pointer;
+            border: 3px solid #ff5722;
         }
 
-        .post {
-            background: white;
-            width: 350px;
-            margin: 20px auto;
-            padding: 15px;
-            border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-        }
-
-        .post img {
-            width: 100%;
-            border-radius: 10px;
+        input {
+            width: 90%;
+            padding: 8px;
+            margin-top: 10px;
         }
 
         button {
-            padding: 8px 15px;
+            padding: 8px 20px;
             border: none;
             background: #ff5722;
             color: white;
             border-radius: 5px;
             cursor: pointer;
             margin-top: 10px;
-        }
-
-        input {
-            padding: 6px;
-            width: 80%;
         }
     </style>
 
@@ -75,23 +64,26 @@
 
     <div class="profile-box">
 
-        <img id="profilePic" class="profile-img" src="https://via.placeholder.com/120">
+        <img id="profilePic" class="profile-img" src="https://i.imgur.com/6VBx3io.png">
 
         <h3 id="userEmail"></h3>
 
-        <input id="nameInput" placeholder="Enter your name">
+        <input id="username" placeholder="Enter username">
 
         <br>
 
         <button onclick="saveProfile()">Save Profile</button>
 
-        <p>Total Posts: <span id="postCount">0</span></p>
+        <br><br>
 
-        <button onclick="goHome()">Home</button>
+        <button onclick="goHome()">Back to Home</button>
+
+        <br><br>
+
+        <button onclick="logout()">Logout</button>
 
     </div>
 
-    <div id="myPosts"></div>
 
     <script src="https://upload-widget.cloudinary.com/global/all.js"></script>
 
@@ -102,8 +94,6 @@
 
         import {
             getFirestore,
-            collection,
-            getDocs,
             doc,
             setDoc
         }
@@ -111,9 +101,11 @@
 
         import {
             getAuth,
-            onAuthStateChanged
+            onAuthStateChanged,
+            signOut
         }
             from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
 
         const firebaseConfig = {
 
@@ -127,16 +119,43 @@
 
         };
 
+
+        /* Initialize Firebase */
+
         const app = initializeApp(firebaseConfig);
 
         const db = getFirestore(app);
 
         const auth = getAuth(app);
 
-        let profileImage = "";
+        let profileImage = localStorage.getItem("photo") || "";
 
 
-        /* Cloudinary profile upload */
+        /* Show stored profile */
+
+        if (localStorage.getItem("photo")) {
+            document.getElementById("profilePic").src = localStorage.getItem("photo");
+        }
+
+        if (localStorage.getItem("username")) {
+            document.getElementById("username").value = localStorage.getItem("username");
+        }
+
+
+        /* Show logged user */
+
+        onAuthStateChanged(auth, (user) => {
+
+            if (user) {
+
+                document.getElementById("userEmail").innerText = user.email;
+
+            }
+
+        });
+
+
+        /* Cloudinary Upload */
 
         const widget = cloudinary.createUploadWidget({
 
@@ -164,29 +183,29 @@
         };
 
 
-        /* Auth check */
-
-        onAuthStateChanged(auth, async (user) => {
-
-            if (user) {
-
-                document.getElementById("userEmail").innerText =
-                    user.email;
-
-                loadMyPosts(user.email);
-
-            }
-
-        });
-
-
-        /* Save profile */
+        /* Save Profile */
 
         window.saveProfile = async function () {
 
             const user = auth.currentUser;
 
-            const name = document.getElementById("nameInput").value;
+            const name = document.getElementById("username").value;
+
+            if (!name) {
+
+                alert("Please enter username");
+
+                return;
+
+            }
+
+            localStorage.setItem("username", name);
+
+            if (profileImage) {
+
+                localStorage.setItem("photo", profileImage);
+
+            }
 
             await setDoc(doc(db, "users", user.uid), {
 
@@ -196,60 +215,29 @@
 
             });
 
-            alert("Profile saved");
-
-        };
-
-
-        /* Load posts */
-
-        async function loadMyPosts(email) {
-
-            const querySnapshot = await getDocs(collection(db, "posts"));
-
-            let html = "";
-            let count = 0;
-
-            querySnapshot.forEach((docSnap) => {
-
-                const data = docSnap.data();
-
-                if (data.user === email) {
-
-                    count++;
-
-                    html += `
-
-<div class="post">
-
-<h3>${data.food}</h3>
-
-<img src="${data.image}">
-
-<p>${data.review}</p>
-
-<p style="color:gray">${data.time}</p>
-
-</div>
-
-`;
-
-                }
-
-            });
-
-            document.getElementById("myPosts").innerHTML = html;
-
-            document.getElementById("postCount").innerText = count;
+            alert("Profile saved successfully");
 
         }
 
 
-        /* Home */
+        /* Go Home */
 
         window.goHome = function () {
 
             window.location.href = "home.html";
+
+        }
+
+
+        /* Logout */
+
+        window.logout = async function () {
+
+            await signOut(auth);
+
+            alert("Logged out successfully");
+
+            window.location.href = "login.html";
 
         }
 
