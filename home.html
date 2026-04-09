@@ -2,6 +2,253 @@
 <html>
 
 <head>
+
+    <title>My Profile</title>
+
+    <style>
+        body {
+            font-family: Arial;
+            background: #f4f4f4;
+            text-align: center;
+            margin: 0;
+        }
+
+        .header {
+            background: #ff5722;
+            color: white;
+            padding: 20px;
+        }
+
+        .profile-box {
+            background: white;
+            width: 350px;
+            margin: 30px auto;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .profile-img {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            object-fit: cover;
+            cursor: pointer;
+            border: 3px solid #ff5722;
+        }
+
+        input {
+            width: 90%;
+            padding: 8px;
+            margin-top: 10px;
+        }
+
+        button {
+            padding: 8px 20px;
+            border: none;
+            background: #ff5722;
+            color: white;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+    </style>
+
+</head>
+
+<body>
+
+    <div class="header">
+        <h2>My Profile</h2>
+    </div>
+
+    <div class="profile-box">
+
+        <img id="profilePic" class="profile-img" src="https://i.imgur.com/6VBx3io.png">
+
+        <h3 id="userEmail"></h3>
+
+        <input id="username" placeholder="Enter username">
+
+        <br>
+
+        <button onclick="saveProfile()">Save Profile</button>
+
+        <br><br>
+
+        <button onclick="goHome()">Back to Home</button>
+
+        <br><br>
+
+        <button onclick="logout()">Logout</button>
+
+    </div>
+
+
+    <script src="https://upload-widget.cloudinary.com/global/all.js"></script>
+
+    <script type="module">
+
+        import { initializeApp }
+            from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+
+        import {
+            getFirestore,
+            doc,
+            setDoc
+        }
+            from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+        import {
+            getAuth,
+            onAuthStateChanged,
+            signOut
+        }
+            from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+
+        const firebaseConfig = {
+
+            apiKey: "AIzaSyAqMWOE_uR6AUX9u-g9QybNPeLE8B361aM",
+            authDomain: "food-explorer-fc408.firebaseapp.com",
+            projectId: "food-explorer-fc408",
+            storageBucket: "food-explorer-fc408.appspot.com",
+            messagingSenderId: "247217642461",
+            appId: "1:247217642461:web:000b3cd0d31c8...",
+            measurementId: "G-Q6ZBFHQHBW"
+
+        };
+
+
+        /* Initialize Firebase */
+
+        const app = initializeApp(firebaseConfig);
+
+        const db = getFirestore(app);
+
+        const auth = getAuth(app);
+
+        let profileImage = localStorage.getItem("photo") || "";
+
+
+        /* Show stored profile */
+
+        if (localStorage.getItem("photo")) {
+            document.getElementById("profilePic").src = localStorage.getItem("photo");
+        }
+
+        if (localStorage.getItem("username")) {
+            document.getElementById("username").value = localStorage.getItem("username");
+        }
+
+
+        /* Show logged user */
+
+        onAuthStateChanged(auth, (user) => {
+
+            if (user) {
+
+                document.getElementById("userEmail").innerText = user.email;
+
+            }
+
+        });
+
+
+        /* Cloudinary Upload */
+
+        const widget = cloudinary.createUploadWidget({
+
+            cloudName: "dzlwlp2fx",
+            uploadPreset: "food_upload"
+
+        },
+
+            (error, result) => {
+
+                if (!error && result && result.event === "success") {
+
+                    profileImage = result.info.secure_url;
+
+                    document.getElementById("profilePic").src = profileImage;
+
+                }
+
+            });
+
+        document.getElementById("profilePic").onclick = function () {
+
+            widget.open();
+
+        };
+
+
+        /* Save Profile */
+
+        window.saveProfile = async function () {
+
+            const user = auth.currentUser;
+
+            const name = document.getElementById("username").value;
+
+            if (!name) {
+
+                alert("Please enter username");
+
+                return;
+
+            }
+
+            localStorage.setItem("username", name);
+
+            if (profileImage) {
+
+                localStorage.setItem("photo", profileImage);
+
+            }
+
+            await setDoc(doc(db, "users", user.uid), {
+
+                email: user.email,
+                name: name,
+                photo: profileImage
+
+            });
+
+            alert("Profile saved successfully");
+
+        }
+
+
+        /* Go Home */
+
+        window.goHome = function () {
+
+            window.location.href = "home.html";
+
+        }
+
+
+        /* Logout */
+
+        window.logout = async function () {
+
+            await signOut(auth);
+
+            alert("Logged out successfully");
+
+            window.location.href = "login.html";
+
+        }
+
+    </script>
+
+</body>
+
+</html><!DOCTYPE html>
+<html>
+
+<head>
     <title>Food Explorer</title>
 
     <style>
