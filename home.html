@@ -94,6 +94,31 @@
         .feed {
             margin-top: 30px;
         }
+
+        .post-user {
+            display: flex;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .post-user img {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            margin-right: 10px;
+        }
+
+        .profile-btn {
+            position: fixed;
+            top: 15px;
+            right: 20px;
+            padding: 7px 15px;
+            background: #ff5722;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+        }
     </style>
 </head>
 
@@ -105,14 +130,14 @@
         <div class="menu-icon" onclick="toggleMenu()">⋮</div>
 
         <div id="menu" class="menu-dropdown">
-            <a href="login.html">Login</a>
+
             <a href="signup.html">Signup</a>
-            <a href="profile.html">Profile</a>
+
         </div>
 
     </div>
+    <button class="profile-btn" onclick="goProfile()">Profile</button>
 
-    <button class="logout-btn" onclick="logout()">Logout</button>
 
     <h1>🍔 Food Explorer</h1>
 
@@ -234,20 +259,13 @@
         window.addPost = async function () {
 
             const food = document.getElementById("foodName").value;
-
             const review = document.getElementById("review").value;
 
             const user = auth.currentUser;
-            const name = localStorage.getItem("username") || "User";
-            const photo = localStorage.getItem("photo") || "https://via.placeholder.com/40";
 
-            if (!food || !review || !imageUrl) {
-
-                alert("Please add food name, review and image");
-
-                return;
-
-            }
+            const username = localStorage.getItem("username") || "User";
+            const userphoto = localStorage.getItem("photo") ||
+                "https://i.imgur.com/6VBx3io.png";
 
             await addDoc(collection(db, "posts"), {
 
@@ -255,22 +273,16 @@
                 review: review,
                 image: imageUrl,
                 likes: 0,
+                username: username,
+                userphoto: userphoto,
                 user: user.email,
-                username: name,
-                userphoto: photo,
                 time: new Date().toLocaleString()
+
             });
-
-            alert("Post uploaded");
-
-            document.getElementById("foodName").value = "";
-            document.getElementById("review").value = "";
-            document.getElementById("foodImage").src = "";
-            imageUrl = "";
 
             loadPosts();
 
-        };
+        }
 
 
         /* Load Posts */
@@ -291,11 +303,16 @@
 
 <div class="post-box">
 
-<p style="color:gray;font-size:14px;">
-Posted by: ${data.user || "Anonymous"}
-</p>
+<div style="display:flex;align-items:center;margin-bottom:10px;">
 
-<p style="font-size:12px;color:#888;">
+<img src="${data.userphoto || 'https://i.imgur.com/6VBx3io.png'}"
+style="width:35px;height:35px;border-radius:50%;margin-right:10px;">
+
+<b>${data.username || "User"}</b>
+
+</div>
+
+<p style="color:gray;font-size:12px">
 ${data.time}
 </p>
 
@@ -309,14 +326,10 @@ ${data.time}
 ❤️ ${data.likes || 0}
 </button>
 
-${user && user.email === data.user ?
-
-                        `<button onclick="deletePost('${docSnap.id}')"
+<button onclick="deletePost('${docSnap.id}')"
 style="background:red;margin-left:10px;">
 Delete
-</button>`
-
-                        : ""}
+</button>
 
 </div>
 
@@ -363,15 +376,7 @@ Delete
 
         /* Logout */
 
-        window.logout = async function () {
 
-            await signOut(auth);
-
-            alert("Logged out");
-
-            window.location.href = "login.html";
-
-        };
 
 
         loadPosts();
@@ -391,7 +396,11 @@ Delete
         }
 
     </script>
+    <script>window.goProfile = function () {
 
+            window.location.href = "profile.html";
+
+        }</script>
 </body>
 
 </html>
